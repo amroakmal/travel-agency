@@ -7,9 +7,15 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 // A middleware to add the request data to the req object in the post request, data added in req.body
 app.use(express.json())
 
+app.use((req, res, next) => {
+    req.requestTime = new Date().toISOString();
+    next();
+})
+
 const getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success',
+        requestTime: req.requestTime,
         results: tours.length,
         data: {
             tours: tours
@@ -98,11 +104,15 @@ const addTour = (req, res) => {
 app.route('/api/v1/tours')
     .get(getAllTours)
     .post(addTour);
-    
+
 app.route('/api/v1/tours/:id')
     .get(getTour)
     .patch(updateTour)
     .delete(deleteTour);
+
+app.use((req, res) => {
+    return res.status(404).send('Not Found');
+})    
 
 app.listen(3000, () => {
     console.log('App is running');
