@@ -4,6 +4,9 @@ const fs = require('fs');
 
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
+
+///////////////////////////
+/* MIDDLEWARE STACK */
 // A middleware to add the request data to the req object in the post request, data added in req.body
 app.use(express.json())
 
@@ -12,6 +15,14 @@ app.use((req, res, next) => {
     next();
 })
 
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+
+///////////////////////////
+/* TOUR RESOURCE */
 const getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -101,15 +112,66 @@ const addTour = (req, res) => {
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
-app.route('/api/v1/tours')
+tourRouter.route('/')
     .get(getAllTours)
     .post(addTour);
 
-app.route('/api/v1/tours/:id')
+tourRouter.route('/:id')
     .get(getTour)
     .patch(updateTour)
     .delete(deleteTour);
 
+
+///////////////////////////
+/* USER RESOURCE */
+
+const getAllUsers = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'Under development'
+    })
+}
+
+const createUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'Under development'
+    })
+}
+
+const getUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'Under development'
+    })
+}
+
+const updateUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'Under development'
+    })
+}
+
+const deleteUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'Under development'
+    })
+}
+
+userRouter.route('/')
+    .get(getAllUsers)
+    .post(createUser);
+
+userRouter.route('/:id')
+    .get(getUser)
+    .patch(updateUser)
+    .delete(deleteUser);
+
+///////////////////////////
+/* SERVER SETUP */
+    
 app.use((req, res) => {
     return res.status(404).send('Not Found');
 })    
