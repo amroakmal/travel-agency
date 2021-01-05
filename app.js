@@ -173,7 +173,10 @@ userRouter.route('/:id')
 /* SERVER SETUP */
     
 app.use((req, res) => {
-    return res.status(404).send('Not Found');
+    return res.status(404).json({
+        status: 'failed',
+        message: 'Page not found'
+    })
 })    
 
 app.listen(3000, () => {
