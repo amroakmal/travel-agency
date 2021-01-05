@@ -8,7 +8,7 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 // A middleware to add the request data to the req object in the post request, data added in req.body
 app.use(express.json())
 
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success',
         results: tours.length,
@@ -16,44 +16,9 @@ app.get('/api/v1/tours', (req, res) => {
             tours: tours
         }
     });
-})
+}
 
-app.patch('/api/v1/tours/:id', (req, res) => {
-    const id = req.params.id * 1;
-    let tour = tours.find(e => (e.id === id));
-    if(!tour) {
-        return res.status(404).json({
-            status: 'failed',
-            message: 'Invalid ID'
-        })
-    }
-    res.status(200).json({
-        status: 'success',
-        results: 1,
-        data: {
-            tour: 'Update done'
-        }
-    });
-})
-
-app.delete('/api/v1/tours/:id', (req, res) => {
-    const id = req.params.id * 1;
-    let tour = tours.find(e => (e.id === id));
-    if(!tour) {
-        return res.status(404).json({
-            status: 'failed',
-            message: 'Invalid ID'
-        })
-    }
-    res.status(204).json({
-        status: 'success',
-        results: 0,
-        data: null
-    });
-})
-
-
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
     const id = req.params.id * 1;
     let tour = tours.find(e => (e.id === id));
     if(!tour) {
@@ -70,9 +35,43 @@ app.get('/api/v1/tours/:id', (req, res) => {
             tour
         }
     });
-})
+}
 
-app.post('/api/v1/tours', (req, res) => {
+const updateTour = (req, res) => {
+    const id = req.params.id * 1;
+    let tour = tours.find(e => (e.id === id));
+    if(!tour) {
+        return res.status(404).json({
+            status: 'failed',
+            message: 'Invalid ID'
+        })
+    }
+    res.status(200).json({
+        status: 'success',
+        results: 1,
+        data: {
+            tour: 'Update done'
+        }
+    });
+}
+
+const deleteTour = (req, res) => {
+    const id = req.params.id * 1;
+    let tour = tours.find(e => (e.id === id));
+    if(!tour) {
+        return res.status(404).json({
+            status: 'failed',
+            message: 'Invalid ID'
+        })
+    }
+    res.status(204).json({
+        status: 'success',
+        results: 0,
+        data: null
+    });
+}
+
+const addTour = (req, res) => {
     const newId = tours.length;
     const newTour = Object.assign({id: newId}, req.body);
     tours.push(newTour);
@@ -89,7 +88,13 @@ app.post('/api/v1/tours', (req, res) => {
             }
         })
     })
-})
+}
+
+app.get('/api/v1/tours', getAllTours);
+app.get('/api/v1/tours/:id', getTour);
+app.patch('/api/v1/tours/:id', updateTour);
+app.delete('/api/v1/tours/:id', deleteTour);
+app.post('/api/v1/tours', addTour);
 
 app.listen(3000, () => {
     console.log('App is running');
