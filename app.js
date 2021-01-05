@@ -18,6 +18,25 @@ app.get('/api/v1/tours', (req, res) => {
     });
 })
 
+app.patch('/api/v1/tours/:id', (req, res) => {
+    const id = req.params.id * 1;
+    let tour = tours.find(e => (e.id === id));
+    if(!tour) {
+        return res.status(404).json({
+            status: 'failed',
+            results: 0,
+            message: 'Invalid ID'
+        })
+    }
+    res.status(200).json({
+        status: 'success',
+        results: 1,
+        data: {
+            tour: 'Update done'
+        }
+    });
+})
+
 app.get('/api/v1/tours/:id', (req, res) => {
     const id = req.params.id * 1;
     let tour = tours.find(e => (e.id === id));
