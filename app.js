@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const { type } = require('os');
 
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
@@ -13,6 +14,26 @@ app.get('/api/v1/tours', (req, res) => {
         results: tours.length,
         data: {
             tours: tours
+        }
+    });
+})
+
+app.get('/api/v1/tours/:id', (req, res) => {
+    const id = req.params.id * 1;
+    let tour = tours.find(e => (e.id === id));
+    if(!tour) {
+        res.status(404).json({
+            status: 'failed',
+            results: 0,
+            message: 'Invalid ID'
+        })
+        return;
+    }
+    res.status(200).json({
+        status: 'success',
+        results: 1,
+        data: {
+            tour
         }
     });
 })
