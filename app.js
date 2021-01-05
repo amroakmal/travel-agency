@@ -11,8 +11,10 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 app.use(express.json())
 
 app.use((req, res, next) => {
-    req.requestTime = new Date().toISOString();
-    next();
+    req.requestTime = new Date();
+    const delay = Math.floor(Math.random() * 10) * 1000;
+    console.log(delay);
+    setTimeout(() => next(), delay);
 })
 
 const tourRouter = express.Router();
@@ -26,6 +28,7 @@ app.use('/api/v1/users', userRouter);
 const getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success',
+        responseTime: new Date() - req.requestTime,
         requestTime: req.requestTime,
         results: tours.length,
         data: {
@@ -41,12 +44,14 @@ const getTour = (req, res) => {
         return res.status(404).json({
             status: 'failed',
             results: 0,
+            responseTime: new Date() - req.requestTime,
             message: 'Invalid ID'
         })
     }
     res.status(200).json({
         status: 'success',
         results: 1,
+        responseTime: new Date() - req.requestTime,
         data: {
             tour
         }
@@ -59,11 +64,13 @@ const updateTour = (req, res) => {
     if(!tour) {
         return res.status(404).json({
             status: 'failed',
+            responseTime: new Date() - req.requestTime,
             message: 'Invalid ID'
         })
     }
     res.status(200).json({
         status: 'success',
+        responseTime: new Date() - req.requestTime,
         results: 1,
         data: {
             tour: 'Update done'
@@ -77,11 +84,13 @@ const deleteTour = (req, res) => {
     if(!tour) {
         return res.status(404).json({
             status: 'failed',
+            responseTime: new Date() - req.requestTime,
             message: 'Invalid ID'
         })
     }
     res.status(204).json({
         status: 'success',
+        responseTime: new Date() - req.requestTime,
         results: 0,
         data: null
     });
@@ -98,6 +107,7 @@ const addTour = (req, res) => {
         }
         res.status(201).json({
             status: 'success',
+            responseTime: new Date() - req.requestTime,
             results: 1,
             data: {
                 tour: newTour
@@ -128,35 +138,40 @@ tourRouter.route('/:id')
 const getAllUsers = (req, res) => {
     res.status(500).json({
         status: 'error',
-        message: 'Under development'
+        message: 'Under development',
+        responseTime: new Date() - req.requestTime,
     })
 }
 
 const createUser = (req, res) => {
     res.status(500).json({
         status: 'error',
-        message: 'Under development'
+        message: 'Under development',
+        responseTime: new Date() - req.requestTime,
     })
 }
 
 const getUser = (req, res) => {
     res.status(500).json({
         status: 'error',
-        message: 'Under development'
+        message: 'Under development',
+        responseTime: new Date() - req.requestTime,
     })
 }
 
 const updateUser = (req, res) => {
     res.status(500).json({
         status: 'error',
-        message: 'Under development'
+        message: 'Under development',
+        responseTime: new Date() - req.requestTime,
     })
 }
 
 const deleteUser = (req, res) => {
     res.status(500).json({
         status: 'error',
-        message: 'Under development'
+        message: 'Under development',
+        responseTime: new Date() - req.requestTime,
     })
 }
 
