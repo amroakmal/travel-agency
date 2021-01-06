@@ -5,6 +5,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
 console.log("Enviroment:", process.env.NODE_ENV);
+console.log("Port:", process.env.PORT);
 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
