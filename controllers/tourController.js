@@ -1,29 +1,5 @@
 const TourModel = require('../models/tourModel');
 
-exports.checkBody = (req, res, next) => {
-    const { name, price } = req.body;
-
-    if(!name || !price) {
-        return res.status(400).json({
-            status: 'failed',
-            responseTime: new Date() - req.requestTime,
-            message: 'Invalid input data'
-        })
-    }
-    next();
-}
-
-exports.checkValidBody = (req, res, next, val) => {
-    // if(val * 1 >= tours.length) {
-    //     return res.status(404).json({
-    //         status: 'failed',
-    //         responseTime: new Date() - req.requestTime,
-    //         message: 'Invalid ID'
-    //     })
-    // }
-    next();
-}
-
 exports.getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -79,5 +55,3 @@ exports.deleteTour = (req, res) => {
         data: null
     });
 }
-
-
