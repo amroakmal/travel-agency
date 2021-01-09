@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const dotenv = require('dotenv');
 dotenv.config({path: './config.env'});
 
@@ -7,26 +8,7 @@ mongoose.connect(DB, {
     useFindAndModify: false,
     useCreateIndex: true,
     useNewUrlParser: true
-})
-    .then(() => console.log("Connected to the DB"));
-
-const tourSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'A Tour must have a name'],
-        unique: true
-    },
-    price: {
-        type: Number,
-        require: [true, 'A Tour must have a price']
-    },
-    rating: {
-        type: Number,
-        default: 4.5
-    }
-})
-
-const Tour = mongoose.model('Tour', tourSchema);
+}).then(() => console.log("Successfully connected to the DB"));
 
 const app = require('./app');
 
