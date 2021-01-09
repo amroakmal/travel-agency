@@ -3,7 +3,7 @@ const TourModel = require('../models/tourModel');
 exports.getTour = async(req, res) => {
     try {
         const tour = await TourModel.findById(req.params.id);
-
+        
         res.status(200).json({
             status: 'success',
             responseTime: new Date() - req.requestTime,

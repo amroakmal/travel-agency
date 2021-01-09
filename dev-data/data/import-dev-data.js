@@ -27,6 +27,7 @@ const deleteData = async() => {
         console.log('Unable to delete documents from the DB');
         console.log(err);
     }
+    process.exit();
 }
 
 //IMPORT DATA TO THE DB
@@ -39,6 +40,7 @@ const importData = async() => {
         console.log('Failed to import new documents to the DB');
         console.log(err);
     }
+    process.exit();
 }
 
 console.log("Process Argv: \n");
