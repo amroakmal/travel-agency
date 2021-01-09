@@ -8,7 +8,7 @@ const tourSchema = mongoose.Schema({
     },
     price: {
         type: Number,
-        require: [true, 'A Tour must have a price']
+        required: [true, 'A Tour must have a price']
     },
     rating: {
         type: Number,
