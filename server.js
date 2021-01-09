@@ -8,16 +8,12 @@ mongoose.connect(DB, {
     useCreateIndex: true,
     useNewUrlParser: true
 })
-    .then(con => {
-        console.log('------');
-        console.log(con.connections);
-        console.log('------');
-    })
+    .then(() => console.log("Connected to the DB"));
 
 const app = require('./app');
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, (err) => {
     console.log('App is running...');
 })
