@@ -56,8 +56,6 @@ exports.getAllTours = async (req, res) => {
         //Query related to gte, gt, lte, lt
         let queryStr = JSON.stringify(queryObj);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, matched => `$${matched}`);
-        console.log(queryStr, "\n");
-        console.log(JSON.parse(queryStr));
 
         const query = TourModel.find(JSON.parse(queryStr));
         //await the "query" variable to get executes, i.e. execute the query variable by making the required
