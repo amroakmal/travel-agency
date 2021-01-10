@@ -42,7 +42,18 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
     try {
-        const tours = await TourModel.find();
+        // const tours = await TourModel.find()
+        //     .where('difficulty').equals("easy")
+        //     .where('duration').equals(5)
+        const execludedFields = ['sort', 'page', 'fields', 'limit'];
+        const queryObj = {...req.query};
+        execludedFields.forEach(el => delete queryObj[el]);
+
+        const query = TourModel.find(queryObj);
+        //await the "query" variable to get executes, i.e. execute the query variable by making the required
+        //query and return the results to the tours variable
+        const tours = await query;
+        console.log(query);
         res.status(200).json({
             status: 'success',
             responseTime: new Date() - req.requestTime,
