@@ -47,24 +47,34 @@ exports.getAllTours = async (req, res) => {
         //     .where('difficulty').equals("easy")
         //     .where('duration').equals(5)
 
-
+        //
         const execludedFields = ['sort', 'page', 'fields', 'limit'];
         let queryObj = {...req.query};
 
         execludedFields.forEach(el => delete queryObj[el]);
 
+        //Filtering operations
         //Query related to gte, gt, lte, lt
         let queryStr = JSON.stringify(queryObj);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, matched => `$${matched}`);
 
         let query = TourModel.find(JSON.parse(queryStr));
-
+        //Sorting
         if(req.query.sort) {
             const sortBy = req.query.sort.split(',').join(' ');
             query = query.sort(sortBy);
         } else {
             query = query.sort('-createdAt');
         }
+
+        //limiting by wanted fields only
+        if(req.query.fields) {
+            const fields = req.query.fields.split(',').join(' ');
+            query = query.select(fields);
+        } else {
+            query = query.select('-__v');
+        }
+
         //await the "query" variable to get executes, i.e. execute the query variable by making the required
         //query and return the results to the tours variable
         const tours = await query;
