@@ -57,7 +57,14 @@ exports.getAllTours = async (req, res) => {
         let queryStr = JSON.stringify(queryObj);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, matched => `$${matched}`);
 
-        const query = TourModel.find(JSON.parse(queryStr));
+        let query = TourModel.find(JSON.parse(queryStr));
+
+        if(req.query.sort) {
+            const sortBy = req.query.sort.split(',').join(' ');
+            query = query.sort(sortBy);
+        } else {
+            query = query.sort('-createdAt');
+        }
         //await the "query" variable to get executes, i.e. execute the query variable by making the required
         //query and return the results to the tours variable
         const tours = await query;
