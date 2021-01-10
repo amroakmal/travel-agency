@@ -1,5 +1,12 @@
 const TourModel = require('../models/tourModel');
 
+exports.aliasTopTours = (req, res, next) => {
+    req.query.limit = 5;
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,summary,ratingsAverage,difficulty';
+    next();
+}
+
 exports.getTour = async(req, res) => {
     try {
         const tour = await TourModel.findById(req.params.id);
@@ -42,12 +49,12 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
     try {
+        console.log("AMR")
         //Another method for querying using mongoose
         // const tours = await TourModel.find()
         //     .where('difficulty').equals("easy")
         //     .where('duration').equals(5)
 
-        //
         const execludedFields = ['sort', 'page', 'fields', 'limit'];
         let queryObj = {...req.query};
 
@@ -67,13 +74,27 @@ exports.getAllTours = async (req, res) => {
             query = query.sort('-createdAt');
         }
 
-        //limiting by wanted fields only
+        //Limiting by wanted fields only
         if(req.query.fields) {
             const fields = req.query.fields.split(',').join(' ');
             query = query.select(fields);
         } else {
             query = query.select('-__v');
         }
+
+        //Pagination
+        const page = req.query.page * 1 || 1;
+        const limit = req.query.limit * 1 || 100;
+        const toBeSkipped = (page - 1) * limit;
+
+        if(req.query.page) {
+            const totalNumberOfTours = await TourModel.countDocuments();
+            if(toBeSkipped >= totalNumberOfTours) {
+                throw new Error ('This page does not exist!');
+            }
+        }
+
+        query = query.skip(toBeSkipped).limit(limit);
 
         //await the "query" variable to get executes, i.e. execute the query variable by making the required
         //query and return the results to the tours variable
