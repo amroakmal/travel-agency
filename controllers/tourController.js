@@ -49,7 +49,6 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
     try {
-        console.log("AMR")
         //Another method for querying using mongoose
         // const tours = await TourModel.find()
         //     .where('difficulty').equals("easy")
