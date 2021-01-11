@@ -64,15 +64,15 @@ tourSchema.pre('save', function(next) {
     next();
 });
 
-tourSchema.pre('save', function(next) {
-    console.log('Saving the new document');
-    next();
-});
+// tourSchema.pre('save', function(next) {
+//     console.log('Saving the new document');
+//     next();
+// });
 
-tourSchema.post('save', function(doc, next) {
-    console.log(doc);
-    next();
-})
+// tourSchema.post('save', function(doc, next) {
+//     console.log(doc);
+//     next();
+// })
 
 tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
