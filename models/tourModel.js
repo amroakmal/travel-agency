@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = mongoose.Schema({
     name: {
@@ -7,6 +8,7 @@ const tourSchema = mongoose.Schema({
         unique: true,
         trim: true
     },
+    slug: String,
     price: {
         type: Number,
         required: [true, 'A Tour must have a price']
@@ -56,6 +58,11 @@ const tourSchema = mongoose.Schema({
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
 });
+
+tourSchema.pre('save', function(next) {
+    this.slug = slugify(this.name, { lower: true });
+    next();
+})
 
 tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
