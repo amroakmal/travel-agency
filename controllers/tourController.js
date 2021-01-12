@@ -15,7 +15,6 @@ exports.getTour = async(req, res) => {
         res.status(200).json({
             status: 'success',
             responseTime: new Date() - req.requestTime,
-            results: 1,
             data: {
                 tour
             }

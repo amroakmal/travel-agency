@@ -78,6 +78,11 @@ tourSchema.pre('save', function(next) {
 //     next();
 // })
 
+tourSchema.pre(/^find/, function(next) {
+    this.find({ secretTour: { $ne:  true } });
+    next();
+});
+
 tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
 })
