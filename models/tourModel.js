@@ -53,7 +53,11 @@ const tourSchema = mongoose.Schema({
         default: Date.now(),
         select: false
     }, 
-    startDates: [Date]
+    startDates: [Date],
+    secretTour: {
+        type: Boolean,
+        default: false
+    }
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
