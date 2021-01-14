@@ -1,8 +1,49 @@
+const AppError = require('../utils/appError');
+
+const handleCastErrorDB = (err) => {
+    return new AppError(`Invalid input. ${err.path}: ${err.value}`, 400);
+}
+
+const sendErrorDev = (err, res) => {
+    res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+        error: err, 
+        stack: err.stack
+    });
+}
+
+const sendErrorProd = (err, res) => {
+    if(err.isOperational) {
+        res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+        });
+    } else {
+        console.log("Non operational");
+        //Log the error for us, the developers
+        // console.error('ERROR!\n', err);
+
+        //Send generic message for the client
+        res.status(500).json({
+            status: 'fail',
+            message: 'Something went wrong!'
+        })
+    }
+}
+
 module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message
-    })
+
+    if(process.env.NODE_ENV === 'development') {
+        sendErrorDev(err, res);
+    } else {
+        let error = Object.create(err)
+        if(error.name === 'CastError') {
+            error = handleCastErrorDB(error);
+        }
+
+        sendErrorProd(error, res);
+    }
 };
