@@ -14,6 +14,14 @@ const app = require('./app');
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log('App is running...');
 })
+
+process.on('unhandledRejection', (err) => {
+    console.log(`Error name: ${err.name}`, "\n", `Error Message: ${err.message}`, "\n");
+    server.close(() => {
+        console.log("SHUTTING DOWN!");
+        process.exit(1);
+    });
+});
