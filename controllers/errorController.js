@@ -4,6 +4,15 @@ const handleCastErrorDB = (err) => {
     return new AppError(`Invalid input. ${err.path}: ${err.value}`, 400);
 }
 
+const handleDuplicateFieldsDB = (err) => {
+    return new AppError(`Duplicate field value. Value '${err.keyValue.name}' already exists`, 400);
+}
+
+const handleValidationErrorDB = (err) => {
+    const errors = Object.values(err.errors).map(el => el.message);
+    return new AppError(`Invalid inputs. Errors: ${errors.join('. ')}`, 400);
+}
+
 const sendErrorDev = (err, res) => {
     res.status(err.statusCode).json({
         status: err.status,
@@ -14,7 +23,7 @@ const sendErrorDev = (err, res) => {
 }
 
 const sendErrorProd = (err, res) => {
-    if(err.isOperational) {
+    if(err.isOperational || 1) {
         res.status(err.statusCode).json({
             status: err.status,
             message: err.message,
@@ -42,6 +51,12 @@ module.exports = (err, req, res, next) => {
         let error = Object.create(err)
         if(error.name === 'CastError') {
             error = handleCastErrorDB(error);
+        }
+        if(error.code === 11000) {
+            error = handleDuplicateFieldsDB(error);
+        }
+        if(error.name === 'ValidationError') {
+            error = handleValidationErrorDB(error);
         }
 
         sendErrorProd(error, res);
