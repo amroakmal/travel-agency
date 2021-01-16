@@ -17,7 +17,6 @@ exports.signup = catchAsync(async(req, res, next) => {
         photo: req.body.photo
     });
 
-    newUser.print();
     const token = signToken(newUser._id);
 
     res.status(201).json({
