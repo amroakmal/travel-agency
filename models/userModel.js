@@ -25,6 +25,6 @@ const UserSchema = new mongoose.Schema({
     photo: String
 });
 
-const userModel = mongoose.Model('User', UserSchema);
+const userModel = mongoose.model('User', UserSchema);
 
 module.exports = userModel;
