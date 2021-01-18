@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate: [validator.isEmail, 'Please insert a valid email']
     },
-    photo: String
+    photo: String,
+    passwordChangedAt: Date
 });
 
 userSchema.pre('save', async function(next) {
@@ -42,6 +43,14 @@ userSchema.pre('save', async function(next) {
     
     next();
 });
+
+userSchema.methods.passwordChangedAfter = function(JWTTimestamp) {
+    if(this.passwordChangedAt) {
+        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+        return JWTTimestamp <= changedTimestamp;
+    }
+    return false;
+}
 
 userSchema.methods.correctPassword = async function(insertedPassword, receivedFromDBPAssword) {
     return await bcrypt.compare(insertedPassword, receivedFromDBPAssword);
