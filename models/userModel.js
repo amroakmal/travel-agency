@@ -31,7 +31,12 @@ const userSchema = new mongoose.Schema({
         validate: [validator.isEmail, 'Please insert a valid email']
     },
     photo: String,
-    passwordChangedAt: Date
+    passwordChangedAt: Date,
+    role: {
+        type: String,
+        enum: ['user', 'guide', 'lead-guide', 'admin'],
+        default: 'user'
+    }
 });
 
 userSchema.pre('save', async function(next) {

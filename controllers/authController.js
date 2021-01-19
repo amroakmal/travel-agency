@@ -55,6 +55,7 @@ exports.protect = catchAsync(async(req, res, next) => {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     const user = await UserModel.findById(decoded.id);
     if(!user) {
+
         return next(new AppError('User belong to that Token does not exist anymore', 401));
     }
     if(user.passwordChangedAfter(decoded.iat)) {
@@ -63,3 +64,12 @@ exports.protect = catchAsync(async(req, res, next) => {
     req.user = user;
     next();
 });
+
+exports.restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if(!roles.includes(req.user.role)) {
+            return next(new AppError('Unauthorized user! Yo do not have permission', 403));
+        }
+        next();
+    }
+};
