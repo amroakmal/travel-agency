@@ -1,5 +1,6 @@
 const { promisify } = require('util');
 const catchAsync = require('../utils/catchAsync');
+const sendEmail = require('../utils/email');
 const UserModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const AppError = require('../utils/appError');
@@ -73,3 +74,38 @@ exports.restrictTo = (...roles) => {
         next();
     }
 };
+
+exports.forgotPassword = catchAsync(async(req, res, next) => {
+    const user = await UserModel.findOne({ email: req.body.email });
+    if(!user) {
+        return next(new AppError('Please provide your email!', 404));
+    }
+    const resetToken = user.createResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    const message = `Forgot your password? Submit a new patch request using your new password
+    and passwordConfirm to ${resetURL}\n If you didn't forget your password, please ignore this email`;
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Your password reset and onlu valid for 10 minutes!',
+            message: message
+        });
+        res.status(200).json({
+            status: 'Success',
+            message: 'Token sent to your email!'
+        })
+    } catch(err) {
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+
+        return next(new AppError('Resetting your password failed! Please try again', 500));
+    }
+});
+
+exports.resetPassword = (req, res, next) => {
+    
+}
