@@ -1,39 +1,39 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+import { NextFunction, Request, Response } from "express";
+
 const TourModel = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppErrorTour = require('../utils/appError');
-exports.aliasTopTours = (req, res, next) => {
+
+interface Req extends Request {
+    requestTime: number
+}
+
+exports.aliasTopTours = (req: {query: {limit: number, sort:string, fields: string}}, res: object, next: Function) => {
     req.query.limit = 5;
     req.query.sort = '-ratingsAverage,price';
     req.query.fields = 'name,price,summary,ratingsAverage,difficulty';
     next();
-};
-exports.getTour = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const tour = yield TourModel.findById(req.params.id);
-    if (!tour) {
+}
+
+exports.getTour = catchAsync(async(req: Req, res: Response, next: NextFunction) => {
+    const tour = await TourModel.findById(req.params.id);
+    
+    if(!tour) {
         return next(new AppErrorTour(`No tour found with the given ID: ${req.params.id}`, 404));
     }
+
     res.status(200).json({
         status: 'success',
         responseTime: Date.now() - req.requestTime,
         data: {
             tour
         }
-    });
-}));
-exports.createTour = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const newTour = yield TourModel.create(req.body);
+    });    
+});
+
+exports.createTour = catchAsync(async (req: {requestTime: number, body: object}, res: {status: Function}, next: Function) => {
+    const newTour = await TourModel.create(req.body);
     res.status(201).json({
         status: 'success',
         responseTime: Date.now() - req.requestTime,
@@ -42,12 +42,13 @@ exports.createTour = catchAsync((req, res, next) => __awaiter(void 0, void 0, vo
             newTour
         }
     });
-}));
-exports.getAllTours = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+
+exports.getAllTours = catchAsync(async (req: {requestTime: number, query: string}, res: {status: Function}, next: Function) => {
     //await the "query" variable to get executes, i.e. execute the query variable by making the required
     //query and return the results to the tours variable
     const features = new APIFeatures(TourModel.find(), req.query).filter().sort().limitFields().paginate();
-    const tours = yield features.query;
+    const tours = await features.query;
     res.status(200).json({
         status: 'success',
         responseTime: Date.now() - req.requestTime,
@@ -57,15 +58,18 @@ exports.getAllTours = catchAsync((req, res, next) => __awaiter(void 0, void 0, v
             tours
         }
     });
-}));
-exports.updateTour = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const updatedTour = yield TourModel.findByIdAndUpdate(req.params.id, req.body, {
+})
+
+exports.updateTour = catchAsync(async (req: {requestTime: number, body: object, params: {id: number}}, res: {status: Function}, next: Function) => {
+    const updatedTour = await TourModel.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
-    });
-    if (!updatedTour) {
+    })
+
+    if(!updatedTour) {
         return next(new AppErrorTour(`No tour found with the given ID: ${req.params.id}`, 404));
     }
+
     res.status(200).json({
         status: 'success',
         responseTime: Date.now() - req.requestTime,
@@ -74,26 +78,30 @@ exports.updateTour = catchAsync((req, res, next) => __awaiter(void 0, void 0, vo
             updatedTour
         }
     });
-}));
-exports.deleteTour = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const tour = yield TourModel.findByIdAndDelete(req.params.id);
-    if (!tour) {
+});
+
+exports.deleteTour = catchAsync(async (req: {requestTime: number, params: {id: number}}, res: {status: Function}, next: Function) => {
+    const tour = await TourModel.findByIdAndDelete(req.params.id);
+
+    if(!tour) {
         return next(new AppErrorTour(`No tour found with the given ID: ${req.params.id}`, 404));
     }
+
     res.status(204).json({
         status: 'success',
         responseTime: Date.now() - req.requestTime,
         results: 0,
         data: null
     });
-}));
-exports.getTourStats = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const stats = yield TourModel.aggregate([
+});
+
+exports.getTourStats = catchAsync(async(req: object, res: {status: Function}, next: Function) => {
+    const stats = await TourModel.aggregate([
         {
             $match: { ratingsAverage: { $gte: 4.5 } }
         },
         {
-            $group: {
+            $group: { 
                 _id: { $toUpper: '$difficulty' },
                 numTours: { $sum: 1 },
                 numRatings: { $sum: '$ratingsQuantity' },
@@ -107,16 +115,18 @@ exports.getTourStats = catchAsync((req, res, next) => __awaiter(void 0, void 0, 
             $sort: { avgPrice: 1 }
         }
     ]);
+
     res.status(200).json({
         status: 'success',
         data: {
             stats
         }
     });
-}));
-exports.getMonthlyPlan = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+
+exports.getMonthlyPlan = catchAsync(async(req: {params: {year: number}}, res: {status: Function}, next: Function) => {
     const year = req.params.year * 1;
-    const plan = yield TourModel.aggregate([
+    const plan = await TourModel.aggregate([
         {
             $unwind: '$startDates'
         },
@@ -139,7 +149,7 @@ exports.getMonthlyPlan = catchAsync((req, res, next) => __awaiter(void 0, void 0
             $addFields: { month: '$_id' }
         },
         {
-            $project: {
+            $project: { 
                 _id: 0
             }
         },
@@ -149,11 +159,14 @@ exports.getMonthlyPlan = catchAsync((req, res, next) => __awaiter(void 0, void 0
         {
             $limit: 12
         }
-    ]);
+    ])
+
     res.status(200).json({
         status: 'success',
         data: {
             plan
         }
     });
-}));
+});
+
+export {};

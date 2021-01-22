@@ -1,12 +1,8 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
+import mongoose from "mongoose";
 const slugify = require('slugify');
 const validator = require('validator');
-const tourSchema = new mongoose_1.default.Schema({
+
+const tourSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, 'A Tour must have a name'],
@@ -14,6 +10,7 @@ const tourSchema = new mongoose_1.default.Schema({
         trim: true,
         maxlength: [40, 'Too long name'],
         minlength: [4, 'Too short name'],
+        // validate: [validator.isAlpha, 'Name should contain letters only']
     },
     slug: String,
     price: {
@@ -43,13 +40,13 @@ const tourSchema = new mongoose_1.default.Schema({
         min: [1, `Rating can't be less than 1`]
     },
     ratingsQuantity: {
-        type: Number,
+        type: Number, 
         default: 0
     },
     priceDiscount: {
         type: Number,
         validate: {
-            validator: function (val) {
+            validator: function(this: {price: number}, val: number) {
                 return val < this.price;
             },
             message: 'Discount Price which is ({VALUE}) greater than main price'
@@ -59,11 +56,11 @@ const tourSchema = new mongoose_1.default.Schema({
         type: String,
         trim: true,
         required: [true, 'A tour must have a description']
-    },
+    }, 
     description: {
         type: String,
         trim: true
-    },
+    }, 
     imageCover: {
         type: String,
         required: [true, 'A tour must have a cover image']
@@ -73,7 +70,7 @@ const tourSchema = new mongoose_1.default.Schema({
         type: Date,
         default: Date.now(),
         select: false
-    },
+    }, 
     startDates: [Date],
     secretTour: {
         type: Boolean,
@@ -83,33 +80,42 @@ const tourSchema = new mongoose_1.default.Schema({
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
 });
-tourSchema.pre('save', function (next) {
+
+tourSchema.pre('save', function(this: any, next) {
     this.slug = slugify(this.name, { lower: true });
     next();
 });
+
 // tourSchema.pre('save', function(next) {
 //     console.log('Saving the new document');
 //     next();
 // });
+
 // tourSchema.post('save', function(doc, next) {
 //     console.log(doc);
 //     next();
 // })
-tourSchema.pre(/^find/, function (next) {
-    this.find({ secretTour: { $ne: true } });
+
+tourSchema.pre(/^find/, function(this: any, next: Function) {
+    this.find({ secretTour: { $ne:  true } });
     this.start = Date.now();
     next();
 });
-tourSchema.post(/^find/, function (doc, next) {
+
+tourSchema.post(/^find/, function(this: any, doc, next: Function) {
     this.end = Date.now() - this.start;
     next();
 });
-tourSchema.pre('aggregate', function (next) {
+
+tourSchema.pre('aggregate', function(this: any, next: Function) {
     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
     next();
 });
-tourSchema.virtual('durationWeeks').get(function () {
+
+tourSchema.virtual('durationWeeks').get(function(this: any) {
     return this.duration / 7;
-});
-const Tour = mongoose_1.default.model('Tour', tourSchema);
+})
+
+const Tour = mongoose.model('Tour', tourSchema);
+
 module.exports = Tour;
