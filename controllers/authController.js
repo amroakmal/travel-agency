@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resetPassword = exports.forgotPassword = exports.restrictTo = exports.protect = exports.login = exports.signup = void 0;
 const { promisify } = require('util');
 const sendEmail = require('../utils/email');
 const UserModel = require('../models/userModel');
@@ -67,14 +68,24 @@ exports.protect = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 
     req.user = user;
     next();
 }));
-exports.restrictTo = (...roles) => {
+// enum roles {"ADMIN", "AMR"};
+const restrictTo = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return next(new AppErrorAuth('Unauthorized user! Yo do not have permission', 403));
-        }
+        // if(!roles.includes(req.user.role)) {
+        return next(new AppErrorAuth('Unauthorized user! Yo do not have permission', 403));
+        // }
         next();
     };
 };
+exports.restrictTo = restrictTo;
+// exports.restrictTo = (...roles: string[]) => {
+//     return (req: {user: {role: string}}, res: object, next: Function) => {
+//         if(!roles.includes(req.user.role)) {
+//             return next(new AppErrorAuth('Unauthorized user! Yo do not have permission', 403));
+//         }
+//         next();
+//     }
+// };
 exports.forgotPassword = catchAsync((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield UserModel.findOne({ email: req.body.email });
     if (!user) {
@@ -103,6 +114,7 @@ exports.forgotPassword = catchAsync((req, res, next) => __awaiter(void 0, void 0
         return next(new AppErrorAuth('Resetting your password failed! Please try again', 500));
     }
 }));
-exports.resetPassword = (req, res, next) => {
+const resetPassword = (req, res, next) => {
     console.log("RESET PASSWORD");
 };
+exports.resetPassword = resetPassword;
